@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .outline { stroke: #27352b; }
+    .detail { fill: #27352b; stroke: #27352b; }
+    @media (prefers-color-scheme: dark) {
+      .outline { stroke: #f8f0dc; }
+      .detail { fill: #f8f0dc; stroke: #f8f0dc; }
+    }
+  </style>
+  <path d="M26 29C17 15 20 3 26 4c7 1 7 17 8 21C39 10 47 5 51 10c5 7-6 17-12 22 9 3 13 9 12 17-2 12-16 15-27 10-12-5-14-18-7-25 3-3 6-5 9-5Z" fill="#ef744b" class="outline" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="39" cy="39" r="2.5" class="detail" stroke="none"/>
+  <circle cx="51" cy="44" r="3.5" fill="#f8f0dc" class="outline" stroke-width="2"/>
+  <path d="M48 49c5 3 8 2 11 0M47 53c5 5 9 4 12 4" fill="none" class="outline" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="16" cy="41" r="8" fill="#f8f0dc" class="outline" stroke-width="3"/>
+</svg>
