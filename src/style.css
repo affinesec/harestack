@@ -13,11 +13,11 @@
 * { box-sizing: border-box; }
 html, body, #app { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 button { font: inherit; }
-body { overscroll-behavior: none; }
+body { overscroll-behavior: none; touch-action: none; }
 
 .shell {
   position: relative;
-  width: 100%; height: 100%; min-height: 620px;
+  width: 100%; height: 100%; height: 100dvh; min-height: 620px;
   background: #a9d9da;
   overflow: hidden;
   user-select: none;
@@ -79,6 +79,7 @@ body { overscroll-behavior: none; }
 }
 .instruction.hidden { opacity: 0; transform: translate(-50%, 8px); }
 .key { border: 1px solid rgba(255,255,255,.5); border-radius: 5px; padding: 2px 6px; }
+.touch-instruction { display: none; }
 
 
 .overlay { position: absolute; z-index: 30; inset: 0; display: grid; place-items: center; padding: 18px; background: rgba(39,53,43,.28); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .25s; }
@@ -108,9 +109,9 @@ body { overscroll-behavior: none; }
 .toast.show { opacity:1; transform:translate(-50%,0); }
 
 @media (max-width: 620px) {
-  .shell { min-height: 520px; }
-  .topbar { height: 66px; padding: 9px 14px; }
-  .game-wrap { top: 66px; }
+  .shell { min-height: 0; }
+  .topbar { height: calc(58px + env(safe-area-inset-top)); padding: calc(7px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 7px max(12px, env(safe-area-inset-left)); }
+  .game-wrap { top: calc(58px + env(safe-area-inset-top)); bottom: env(safe-area-inset-bottom); }
   .brand-mark { width: 36px; height: 36px; }
   .brand-name { font-size: 23px; }
   .hud { top: 12px; left: 10px; gap: 6px; }
@@ -119,6 +120,38 @@ body { overscroll-behavior: none; }
   .next-card { top: 12px; right: 10px; width: 96px; }
   .next-hare { height: 55px; }
   .next-name { font-size: 10px; }
-  .instruction { bottom: 14px; font-size: 9px; }
-  .panel { border-radius: 22px; }
+  .instruction { bottom: max(12px, env(safe-area-inset-bottom)); max-width: calc(100% - 24px); padding: 9px 13px; font-size: 9px; }
+  .desktop-instruction, .instruction .key { display: none; }
+  .touch-instruction { display: inline; }
+  .overlay { overflow-y: auto; align-items: center; padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
+  .panel { padding: clamp(20px, 6vw, 30px); border-radius: 22px; box-shadow: 6px 6px 0 var(--ink); }
+  .panel h1 { font-size: clamp(38px, 13vw, 54px); }
+  .start-hare { width: 112px; height: 86px; }
+}
+
+@media (max-width: 370px) {
+  .brand { gap: 7px; }
+  .brand-name { font-size: 21px; }
+  .hud { left: 7px; gap: 4px; }
+  .stat { min-width: 62px; padding-inline: 7px; }
+  .stat-value small { display: none; }
+  .next-card { right: 7px; width: 88px; }
+  .next-name { padding-inline: 4px; }
+  .button-row { grid-template-columns: 1fr; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .topbar { height: calc(48px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); padding-bottom: 0; }
+  .game-wrap { top: calc(48px + env(safe-area-inset-top)); }
+  .brand-mark, .icon-btn { width: 34px; height: 34px; }
+  .brand-name { font-size: 21px; }
+  .overlay { align-items: start; }
+  .panel { width: min(620px, 92%); padding: 16px 24px; }
+  .start-hare { width: 76px; height: 58px; margin: -6px auto 0; }
+  .panel h1 { margin: 0 0 8px; font-size: 34px; line-height: .92; }
+  .panel p { margin: 6px auto 12px; font-size: 13px; line-height: 1.35; }
+  .button-row { grid-template-columns: 1fr 1fr; }
+  .btn { padding-block: 10px; }
+  .result-score { font-size: 72px; margin: 0 0 14px; }
+  .result-stats { margin-bottom: 14px; }
 }

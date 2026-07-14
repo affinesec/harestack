@@ -38,7 +38,7 @@ app.innerHTML = `
         <div class="next-hare" id="nextHare"></div>
         <div class="next-name" id="nextName"></div>
       </div>
-      <div class="instruction" id="instruction"><span>Move to aim · click to drop</span><span class="key">SPACE</span></div>
+      <div class="instruction" id="instruction"><span class="desktop-instruction">Move to aim · click to drop</span><span class="touch-instruction">Tap where you want to drop</span><span class="key">SPACE</span></div>
     </section>
     <div class="overlay open" id="startOverlay">
       <div class="panel">
@@ -77,12 +77,33 @@ function rand() { return rng(); }
 function chooseHare(): HareKind { const pool: HareKind[] = turn < 2 ? ["classic","long","tiny"] : ["classic","classic","long","heavy","spring","sleepy","tiny"]; return pool[Math.floor(rand()*pool.length)]; }
 
 function resize() {
+  const oldWidth = width, oldPlatformY = platformY;
   const rect = wrap.getBoundingClientRect(); width = rect.width; height = rect.height; dpr = Math.min(devicePixelRatio, 2);
   canvas.width = width*dpr; canvas.height = height*dpr; canvas.style.width = `${width}px`; canvas.style.height = `${height}px`; ctx.setTransform(dpr,0,0,dpr,0,0);
   platformY = height - Math.max(72, height*.11);
-  if (platform) Body.setPosition(platform, {x:width/2,y:platformY+22});
+  if (platform) {
+    const oldPlatformWidth = Math.min(390, oldWidth*.58);
+    const platformWidth = Math.min(390, width*.58);
+    Body.scale(platform, platformWidth / oldPlatformWidth, 1);
+    Body.setPosition(platform, {x:width/2,y:platformY+22});
+
+    // Keep an in-progress stack attached to the platform across rotations and
+    // browser chrome changes instead of leaving it off-screen.
+    const xScale = width / oldWidth;
+    const yOffset = platformY - oldPlatformY;
+    hares.forEach(hare => Body.setPosition(hare, {
+      x: Math.max(24, Math.min(width - 24, hare.position.x * xScale)),
+      y: hare.position.y + yOffset,
+    }));
+    if (carrot) {
+      carrot.x = Math.max(24, Math.min(width - 24, carrot.x * xScale));
+      carrot.y += yOffset;
+    }
+    aimX = Math.max(45, Math.min(width - 45, aimX * xScale));
+  }
 }
 window.addEventListener("resize", resize); resize();
+window.visualViewport?.addEventListener("resize", resize);
 
 function resetWorld() {
   Composite.clear(engine.world, false); hares = []; particles = []; score = carrots = turn = 0; gameOver = settling = false;
@@ -231,8 +252,9 @@ function drawParticles(){particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.l
 function tone(freq:number,duration:number,type:OscillatorType,volume:number){if(!soundOn)return;audio??=new AudioContext();const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(volume,audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+duration);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+duration);}
 function toast(){const el=document.querySelector("#toast")!;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1600);}
 
-canvas.addEventListener("pointermove",e=>{const r=canvas.getBoundingClientRect();aimX=Math.max(45,Math.min(width-45,e.clientX-r.left));});
-canvas.addEventListener("pointerdown",e=>{e.preventDefault();drop();document.querySelector("#instruction")!.classList.add("hidden");});
+function updateAim(e: PointerEvent) { const r=canvas.getBoundingClientRect(); aimX=Math.max(45,Math.min(width-45,e.clientX-r.left)); }
+canvas.addEventListener("pointermove",updateAim);
+canvas.addEventListener("pointerdown",e=>{e.preventDefault();updateAim(e);drop();document.querySelector("#instruction")!.classList.add("hidden");});
 window.addEventListener("keydown",e=>{if(e.code==="Space"){e.preventDefault();drop();}});
 document.querySelector("#dailyBtn")!.addEventListener("click",()=>start("daily"));
 document.querySelector("#endlessBtn")!.addEventListener("click",()=>start("endless"));
